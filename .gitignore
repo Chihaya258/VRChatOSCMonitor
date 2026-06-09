@@ -1,0 +1,9 @@
+# PyInstaller 编译缓存
+build/
+*.spec
+
+# PyInstaller 产出
+dist/
+
+# 执行配置文件
+config.json

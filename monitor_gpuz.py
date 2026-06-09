@@ -28,7 +28,8 @@ import threading
 import time
 import winreg
 
-import cpuinfo
+import platform
+
 import psutil
 from pythonosc import udp_client
 
@@ -636,7 +637,7 @@ status_data = {
 data_lock = threading.Lock()
 
 # --- 系统静态信息 (启动时获取一次，运行期不变) ---
-SYS_CPU = cpuinfo.get_cpu_info().get("brand_raw", "未知")
+SYS_CPU = platform.processor() or os.environ.get("PROCESSOR_IDENTIFIER", "未知")
 SYS_RAM = f"{round(psutil.virtual_memory().total / (1024**3))}GB"
 
 
