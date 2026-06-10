@@ -31,7 +31,7 @@
 
 从 [Releases](https://github.com/luo3House/HardwareMonitor-VRChatOSC/releases) 下载 `monitor_gpuz.exe`，直接运行即可。
 
-程序会自动在当前目录下生成 `config.json` 配置文件，按需修改配置后重新运行即可生效。一般用户无需修改直接启动exe即可
+程序会自动在当前目录下生成 `config.json` 配置文件，按需修改配置后重新运行即可生效。一般用户无需修改直接启动exe即可。
 
 ### 3. 在 VRChat 中启用 OSC
 
