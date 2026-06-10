@@ -1,6 +1,7 @@
 # HardwareMonitor-VRChatOSC
 
 通过读取设备硬件信息(包括CPU,GPU,内存等数据)，实时显示在 VRChat 聊天框中。
+
 其中GPU的读取采用GPU-Z 共享内存方案
 
 ## 为什么选择 GPU-Z 共享内存方案？
@@ -159,6 +160,3 @@ pyinstaller --onefile --clean --name monitor_gpuz monitor_gpuz.py
 - GPU-Z（需手动下载）
 - 使用 `monitor_gpuz.exe` 无需 Python 环境；如需从源码运行，需 Python 3.8 或更高版本
 
-## 许可
-
-本项目大部分代码由 AI 生成。
