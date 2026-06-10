@@ -129,24 +129,28 @@ VRAM: 18.2GB/24GB
 
 ### 从源码运行（Python）
 
-如需从源码运行而非使用 exe，请下载完整项目代码并解压：
+如需从源码运行而非使用 exe：
 
+```bash
+# 安装依赖
+pip install -r requirements.txt
+
+# 启动监控
+python monitor_gpuz.py
 ```
-# 首次使用：安装依赖（运行一次即可）
-init.bat
 
-# 日常启动：运行监控
-start.bat
+### 自行打包
+
+如需自行打包为 exe：
+
+```bash
+pip install pyinstaller
+pyinstaller --onefile --clean --name monitor_gpuz monitor_gpuz.py
 ```
-
-- `init.bat` — 自动创建 Python 虚拟环境并安装所有依赖，仅需运行一次
-- `start.bat` — 启动硬件监控，将数据发送到 VRChat 聊天框
 
 ### 依赖安装失败（源码运行）
 
-部分 Python 库（如 `pywin32`）依赖 Microsoft Visual C++ 运行时。若 `init.bat` 安装依赖时提示编译错误，请先安装 [Microsoft Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe) 后重试。
-
-若遇到 `pywin32` 后安装脚本报错，尝试以管理员权限运行 `init.bat`。
+部分 Python 库（如 `pywin32`）依赖 Microsoft Visual C++ 运行时。若 `pip install` 时提示编译错误，请先安装 [Microsoft Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe) 后重试。
 
 ## 系统要求
 
