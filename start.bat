@@ -1,1 +1,0 @@
-.\.venv\Scripts\python monitor_gpuz.py
