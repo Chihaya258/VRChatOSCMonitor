@@ -3,5 +3,10 @@
     "osc_ip": "127.0.0.1",
     "osc_port": 9000,
     "update_interval": 5,
-    "debug": true
+    "debug": true,
+    "gpu_source": "auto",
+    "cpu_name": "",
+    "gpu_name": "",
+    "ram_total_gb": 0,
+    "vram_total_gb": 0
 }

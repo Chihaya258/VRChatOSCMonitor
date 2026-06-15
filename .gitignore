@@ -1,3 +1,10 @@
+# 虚拟环境
+.venv/
+
+# Python 缓存
+__pycache__/
+*.pyc
+
 # PyInstaller 编译缓存
 build/
 *.spec
@@ -5,5 +12,5 @@ build/
 # PyInstaller 产出
 dist/
 
-# 执行配置文件
+# 用户配置文件
 config.json

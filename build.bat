@@ -7,26 +7,45 @@ echo.
 REM --- Check Python ---
 where python >nul 2>&1
 if %ERRORLEVEL% neq 0 (
-    echo [ERROR] Python is not installed or not in PATH.
-    echo Please install Python 3.8+ from https://www.python.org/
+    echo [ERROR] Python not found. Install Python 3.8+ from https://www.python.org/
     exit /b 1
 )
 
-REM --- Check if pyinstaller is installed ---
+REM --- Check/install pyinstaller ---
 where pyinstaller >nul 2>&1
 if %ERRORLEVEL% neq 0 (
     echo [INFO] Installing pyinstaller...
     pip install pyinstaller
+    if %ERRORLEVEL% neq 0 (
+        echo [ERROR] pyinstaller install failed
+        exit /b 1
+    )
 )
 
-REM --- Install dependencies ---
-echo [INFO] Installing dependencies...
+REM --- Install project dependencies ---
+echo [INFO] Installing project dependencies...
 pip install -r requirements.txt
+if %ERRORLEVEL% neq 0 (
+    echo [WARN] Some dependencies failed to install, build may be incomplete
+)
 
 REM --- Build ---
 echo.
 echo [INFO] Building executable...
-pyinstaller --onefile --clean --name monitor_gpuz monitor_gpuz.py
+pyinstaller ^
+    --onefile ^
+    --clean ^
+    --name monitor_gpuz ^
+    --hidden-import pynvml ^
+    --hidden-import wmi ^
+    --hidden-import utils ^
+    --hidden-import utils.config ^
+    --hidden-import utils.logger ^
+    --hidden-import utils.gpuz_structures ^
+    --hidden-import utils.gpuz_search ^
+    --hidden-import utils.gpu_reader ^
+    --hidden-import utils.osc_sender ^
+    main.py
 
 echo.
 if %errorlevel%==0 (
@@ -35,6 +54,7 @@ if %errorlevel%==0 (
     echo ============================================
 ) else (
     echo ============================================
-    echo   Build failed! Check error messages above
+    echo   Build failed! Check errors above.
     echo ============================================
+    exit /b 1
 )
