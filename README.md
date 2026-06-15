@@ -159,7 +159,7 @@ VRAM: 18.2GB/24GB
 - Windows 10 / 11
 - Python 3.8+（仅源码运行需要；exe 无需 Python）
 - NVIDIA 显卡：安装显卡驱动即可（无需 GPU-Z）
-- AMD / Intel 显卡：需安装 GPU-Z 并开启共享内存（GPU-Z → Sensors → 勾选 Shared Memory）
+- AMD / Intel 显卡：需安装 GPU-Z 
 
 ## 已知问题
 
