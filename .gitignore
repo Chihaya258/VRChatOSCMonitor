@@ -12,5 +12,4 @@ build/
 # PyInstaller 产出
 dist/
 
-# 用户配置文件
-config.json
+
