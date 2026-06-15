@@ -28,7 +28,7 @@
 
 #### 方式一：exe 直接运行（推荐）
 
-1. 前往 [Releases](https://github.com/Chihaya258/VRChatOSCMonitor) 下载 `monitor_gpuz.exe`
+1. 前往 [Releases](https://github.com/Chihaya258/VRChatOSCMonitor/releases) 下载 `monitor_gpuz.exe`
 2. 双击运行，程序会自动生成 `config.json`
 3. 在 VRChat 中开启 OSC（圆盘菜单 → OSC → 端口 9000）
 
