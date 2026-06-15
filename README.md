@@ -1,4 +1,5 @@
-# HardwareMonitor-VRChatOSC
+# VRChatOSCMonitor
+
 
 实时采集 CPU、GPU、内存等硬件信息，通过 OSC 协议发送至 VRChat 聊天框显示。
 
