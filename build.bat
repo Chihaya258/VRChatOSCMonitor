@@ -35,7 +35,7 @@ echo [INFO] Building executable...
 pyinstaller ^
     --onefile ^
     --clean ^
-    --name monitor_gpuz ^
+    --name monitor ^
     --hidden-import pynvml ^
     --hidden-import wmi ^
     --hidden-import utils ^
