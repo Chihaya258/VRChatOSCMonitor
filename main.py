@@ -13,9 +13,12 @@ import threading
 import time
 
 import psutil
+import win32gui
+import win32process
 from pythonosc import udp_client
 
 import utils.config as _cfg
+import utils.display_config as _disp_cfg
 from utils.gpuz_search import start_gpuz
 from utils.gpu_reader import detect_gpu_vendor, get_GPU_info, set_gpu_vendor
 from utils.logger import debug_log
@@ -27,6 +30,7 @@ status_data = {
     "ram_used": "N/A", "ram_total": "N/A",
     "vram_used": "N/A", "vram_total": "N/A",
     "gpu_name": "GPU", "text": "",
+    "window_title": "",
 }
 data_lock = threading.Lock()
 
@@ -62,6 +66,12 @@ def hardware_monitor():
 
     debug_log(f"硬件监控线程已启动 (间隔 {interval}s)", "INFO")
 
+    # ── 报告已关闭的显示项 ──
+    if _disp_cfg._display_config:
+        off_items = [k for k, v in _disp_cfg._display_config.items() if v == "OFF"]
+        if off_items:
+            debug_log(f"以下显示项已关闭: {', '.join(off_items)}", "INFO")
+
     while True:
         cpu_percent = psutil.cpu_percent(interval=0.5)
         mem = psutil.virtual_memory()
@@ -86,6 +96,39 @@ def hardware_monitor():
                 "DEBUG",
             )
 
+        # ── 活动窗口检测 ──
+        if _disp_cfg._display_config.get("WINDOW", "OFF") == "ON":
+            window_title = ""
+            window_label = ""
+            try:
+                hwnd = win32gui.GetForegroundWindow()
+                if hwnd:
+                    title = win32gui.GetWindowText(hwnd)
+                    if title:
+                        _, pid = win32process.GetWindowThreadProcessId(hwnd)
+                        proc_name = psutil.Process(pid).name()
+                        if proc_name.lower() == "vrchat.exe":
+                            window_title = ""
+                            window_label = "VRChat不显示输出"
+                        else:
+                            t = title[:120] if len(title) > 120 else title
+                            window_title = t
+                            window_label = t
+                    else:
+                        window_title = "N/A"
+                        window_label = "N/A"
+                else:
+                    window_title = "N/A"
+                    window_label = "N/A"
+            except Exception as e:
+                debug_log(f"窗口检测失败: {e}", "DEBUG")
+        else:
+            window_title = ""
+            window_label = "(已关闭)"
+
+        if window_label:
+            debug_log(f"窗口: {window_label}", "DEBUG")
+
         with data_lock:
             status_data["cpu"] = cpu_percent
             status_data["ram_used"] = ram_used
@@ -95,6 +138,7 @@ def hardware_monitor():
                 status_data["vram_used"] = f"{gpu['Memory Used (Dedicated)']}GB" if gpu["Memory Used (Dedicated)"] is not None else "N/A"
                 status_data["vram_total"] = f"{gpu['MemSize']}GB" if gpu["MemSize"] is not None else "N/A"
                 status_data["gpu_name"] = gpu["CardName"] or "GPU"
+            status_data["window_title"] = window_title
         time.sleep(interval)
 
 
@@ -109,7 +153,7 @@ def send_osc():
     while True:
         with data_lock:
             data = status_data.copy()
-        message = format_osc_message(data, SYS_CPU)
+        message = format_osc_message(data, SYS_CPU, _disp_cfg._display_config)
         try:
             client.send_message("/chatbox/input", [message, True])
             debug_log("OSC 消息已发送", "DEBUG")
@@ -133,6 +177,7 @@ def input_handler():
 
 def run():
     _cfg._config = _cfg.load_config()
+    _disp_cfg._display_config = _disp_cfg.load_display_config()
 
     global SYS_CPU, SYS_RAM
 

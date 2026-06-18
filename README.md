@@ -50,13 +50,14 @@ python main.py
 
 ### VRChat 显示效果
 
-聊天框将自动显示硬件信息：
+聊天框将自动显示硬件信息（支持在 `display.conf` 中自定义开启/关闭每行内容）：
 
 ```
-CPU[Intel i7-13700K]: 35.2%
-RAM: 12.5GB/32GB
-GPU[RTX 4090]: 82.1%
-VRAM: 18.2GB/24GB
+CPU[i7-13700K]: 35.2%
+内存: 12.5GB/32GB
+显卡[RTX 4090]: 82.1%
+显存: 18.2GB/24GB
+当前窗口：Chrome
 ```
 
 ---
@@ -126,6 +127,32 @@ VRAM: 18.2GB/24GB
 
 ---
 
+## display.conf 显示项配置
+
+`display.conf` 控制 OSC 消息中每行内容的显示/隐藏。文件自动生成，格式为 `标识=ON/OFF`：
+
+```
+CPU=ON
+RAM=ON
+GPU=ON
+VRAM=ON
+TEXT=ON
+WINDOW=OFF
+```
+
+| 标识 | 对应行 | 默认值 |
+|---|---|---|
+| `CPU` | CPU 负载 | ON |
+| `RAM` | 内存使用 | ON |
+| `GPU` | 显卡负载 | ON |
+| `VRAM` | 显存使用 | ON |
+| `TEXT` | 控制台自定义文本 | ON |
+| `WINDOW` | 当前活动窗口标题 | OFF |
+
+设为 `OFF` 后对应行将不在 OSC 消息中显示，同时也不会执行对应的数据采集（如 `WINDOW=OFF` 时不会调用 Win32 窗口检测 API）。修改后重启程序生效。
+
+---
+
 ## 常见问题
 
 ### GPU-Z 未找到（AMD / Intel 用户）
@@ -168,6 +195,13 @@ VRAM: 18.2GB/24GB
 ---
 
 ## 更新日志
+
+### v2.1 (2026-06)
+
+- **活动窗口检测**：新增对当前前台窗口的检测，在 OSC 消息末尾显示 `当前窗口：窗口标题`。当活动窗口为 VRChat 时自动隐藏，避免无意义显示
+- **汉化显示**：`GPU` → `显卡`、`RAM` → `内存`、`VRAM` → `显存`，更符合中文用户习惯
+- **设备名称精简**：自动去掉 `Intel(R) Core(TM)`、`NVIDIA GeForce`、`AMD Radeon` 等冗长前缀，只保留型号标识（如 `i7-13700K`、`RTX 4090`、`7800X3D`）
+- **display.conf 显示配置**：新增独立配置文件，支持按行控制是否在 OSC 消息中显示（`CPU/RAM/GPU/VRAM/TEXT/WINDOW=ON/OFF`），窗口显示默认关闭
 
 ### v2.0 (2026-06)
 
