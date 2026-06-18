@@ -173,11 +173,6 @@ WINDOW=OFF
 1. 确认 VRChat 的 OSC 已开启（Settings → OSC）
 2. 确认 OSC 端口与 `config.json` 中 `osc_port` 一致（默认 9000）
 3. AMD / Intel 用户确认 GPU-Z 已启动
-4. NVIDIA 用户确认 pynvml 依赖已安装（`pip install pynvml`）
-
-### 依赖安装失败
-
-部分 Python 库（如 `pywin32`）依赖 Microsoft Visual C++ 运行时。若 `pip install` 提示编译错误，请先安装 [VC Redist](https://aka.ms/vs/17/release/vc_redist.x64.exe) 后重试。
 
 ---
 
@@ -186,7 +181,7 @@ WINDOW=OFF
 - Windows 10 / 11
 - Python 3.8+（仅源码运行需要；exe 无需 Python）
 - NVIDIA 显卡：安装显卡驱动即可（无需 GPU-Z）
-- AMD / Intel 显卡：需安装 GPU-Z 并开启共享内存（GPU-Z → Sensors → 勾选 Shared Memory）
+- AMD / Intel 显卡：需安装 GPU-Z 
 
 ## 已知问题
 
