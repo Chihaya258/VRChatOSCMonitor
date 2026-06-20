@@ -124,7 +124,7 @@ def hardware_monitor():
                 debug_log(f"窗口检测失败: {e}", "DEBUG")
         else:
             window_title = ""
-            window_label = "(已关闭)"
+            window_label = "(已关闭输出)"
 
         if window_label:
             debug_log(f"窗口: {window_label}", "DEBUG")
