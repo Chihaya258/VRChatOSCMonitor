@@ -43,6 +43,7 @@ pyinstaller ^
     --hidden-import utils.logger ^
     --hidden-import utils.gpuz_structures ^
     --hidden-import utils.gpuz_search ^
+    --hidden-import utils.adlx_reader ^
     --hidden-import utils.gpu_reader ^
     --hidden-import utils.osc_sender ^
     main.py

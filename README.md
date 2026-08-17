@@ -5,30 +5,32 @@
 
 ## GPU 数据源
 
-程序支持两种 GPU 数据采集方式，按优先级自动选择：
+程序支持三种 GPU 数据采集方式，按优先级自动选择：
 
 | 方案 | NVIDIA | AMD | Intel Arc |
 |---|---|---|---|
 | **NVML (pynvml)** | ✅ 官方驱动 | ❌ | ❌ |
+| **ADLX（AMD 驱动）** | ❌ | ✅ 官方驱动 | ❌ |
 | **GPU-Z 共享内存** | ✅ | ✅ | ✅（理论支持） |
 
 - **NVIDIA 用户**：优先使用 NVML（`pynvml`），GPU 数据直接从显卡驱动获取，**无需安装 GPU-Z**。
-- **AMD / Intel 用户**：自动回退到 GPU-Z 共享内存方案，GPU-Z 能识别的显卡均可读取。
+- **AMD 用户**：优先使用 AMD ADLX，直接从 AMD 显卡驱动读取 GPU 负载和专用显存，**通常无需安装 GPU-Z**；ADLX 不可用时自动回退 GPU-Z。
+- **Intel 用户**：使用 GPU-Z 共享内存方案。
 - 也可通过 `gpu_source` 配置项强制指定使用哪种方式（见下方配置说明）。
 
 ## 快速开始
 
-### 1. 安装 GPU-Z（AMD / Intel 用户）
+### 1. 安装 GPU-Z（Intel 用户或 AMD 回退方案）
 
 前往 [GPU-Z 官网](https://www.techpowerup.com/download/techpowerup-gpu-z/) 下载并安装，启动后进入 Sensors 标签页，勾选 **Shared Memory** 选项。
 
-> **NVIDIA 用户可跳过此步骤**，程序会直接通过显卡驱动（NVML）读取 GPU 数据，无需安装 GPU-Z。
+> **NVIDIA 和正常安装 AMD 驱动的 AMD 用户可跳过此步骤**：程序会优先通过 NVML 或 ADLX 从显卡驱动读取数据，无需安装 GPU-Z。
 
 ### 2. 运行程序
 
 #### 方式一：exe 直接运行（推荐）
 
-1. 前往 [Releases](https://github.com/Chihaya258/VRChatOSCMonitor/releases) 下载 `monitor_gpuz.exe`
+1. 前往 [Releases](https://github.com/Chihaya258/VRChatOSCMonitor/releases) 下载 `monitor.exe`
 2. 双击运行，程序会自动生成 `config.json`
 3. 在 VRChat 中开启 OSC（圆盘菜单 → OSC → 端口 9000）
 
@@ -46,7 +48,7 @@ python main.py
 
 #### 方式三：自行打包
 
-双击 `build.bat` 即可打包为单文件 exe，输出在 `dist\monitor_gpuz.exe`。
+双击 `build.bat` 即可打包为单文件 exe，输出在 `dist\monitor.exe`。
 
 ### VRChat 显示效果
 
@@ -71,7 +73,7 @@ CPU[i7-13700K]: 35.2%
 | `osc_port` | int | `9000` | OSC 目标端口 |
 | `update_interval` | int | `5` | 数据刷新间隔（秒） |
 | `debug` | bool | `true` | 是否输出调试日志 |
-| `gpu_source` | string | `"auto"` | GPU 数据源：`"auto"` `"nvidia"` `"gpuz"` |
+| `gpu_source` | string | `"auto"` | GPU 数据源：`"auto"` `"nvidia"` `"adlx"` `"gpuz"` |
 | `cpu_name` | string | `""` | CPU 名称覆盖（留空 = 自动检测） |
 | `gpu_name` | string | `""` | GPU 名称覆盖（留空 = 自动检测） |
 | `ram_total_gb` | float | `0` | 内存上限覆盖（`0` = 自动检测） |
@@ -80,6 +82,14 @@ CPU[i7-13700K]: 35.2%
 ### 常用场景
 
 **NVIDIA 用户（无需 GPU-Z）**：默认 `"auto"` 已自动选择 NVML，无需额外配置。
+
+**AMD 用户（无需 GPU-Z）**：默认 `"auto"` 会优先选择 ADLX。也可强制使用：
+
+```json
+{
+    "gpu_source": "adlx"
+}
+```
 
 **强制使用 GPU-Z**（如 pynvml 行为异常）：
 
@@ -155,7 +165,7 @@ WINDOW=OFF
 
 ## 常见问题
 
-### GPU-Z 未找到（AMD / Intel 用户）
+### GPU-Z 未找到（Intel 用户或 AMD ADLX 回退时）
 
 程序会按以下顺序自动搜索 GPU-Z：
 
@@ -172,7 +182,7 @@ WINDOW=OFF
 
 1. 确认 VRChat 的 OSC 已开启（Settings → OSC）
 2. 确认 OSC 端口与 `config.json` 中 `osc_port` 一致（默认 9000）
-3. AMD / Intel 用户确认 GPU-Z 已启动
+3. Intel 用户确认 GPU-Z 已启动；AMD 用户若日志显示 ADLX 不可用，也请确认 GPU-Z 已启动
 
 ---
 
@@ -181,7 +191,8 @@ WINDOW=OFF
 - Windows 10 / 11
 - Python 3.8+（仅源码运行需要；exe 无需 Python）
 - NVIDIA 显卡：安装显卡驱动即可（无需 GPU-Z）
-- AMD / Intel 显卡：需安装 GPU-Z 
+- AMD 显卡：安装支持 ADLX 的 AMD 显卡驱动即可；ADLX 不可用时需安装 GPU-Z
+- Intel 显卡：需安装 GPU-Z
 
 ## 已知问题
 
@@ -190,6 +201,12 @@ WINDOW=OFF
 ---
 
 ## 更新日志
+
+### v2.2 (2026-08)
+
+- **AMD ADLX 支持**：AMD 显卡优先通过 AMD 驱动提供的 ADLX 读取 GPU 负载、专用显存占用和总显存，无需依赖 GPU-Z
+- **自动回退**：数据源自动选择顺序扩展为 NVIDIA NVML → AMD ADLX → GPU-Z，共存兼容 Intel 显卡及旧驱动环境
+- **手动指定 AMD 数据源**：`gpu_source` 新增 `adlx` 选项
 
 ### v2.1 (2026-06)
 

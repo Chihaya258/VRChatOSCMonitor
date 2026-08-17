@@ -18,7 +18,7 @@ DEFAULT_CONFIG = {
     "osc_port": 9000,         # OSC 目标端口 (VRChat 默认 9000)
     "update_interval": 5,     # 数据刷新间隔 (秒)
     "debug": True,            # 是否输出详细调试日志
-    "gpu_source": "auto",     # GPU 数据源: "auto" / "nvidia" / "gpuz"
+    "gpu_source": "auto",     # GPU 数据源: "auto" / "nvidia" / "adlx" / "gpuz"
     "cpu_name": "",           # CPU 名称覆盖 (留空 = 自动检测)
     "gpu_name": "",           # GPU 名称覆盖 (留空 = 自动检测)
     "ram_total_gb": 0,        # 内存上限覆盖 (0 = 自动检测)

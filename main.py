@@ -209,11 +209,13 @@ def run():
     set_gpu_vendor(vendor)
     if vendor == "nvidia":
         print("[INFO] 检测到 NVIDIA GPU，使用 pynvml (无需 GPU-Z)")
+    elif vendor == "adlx":
+        print("[INFO] 检测到 AMD GPU，使用 ADLX (无需 GPU-Z)")
     else:
-        print("[INFO] 未检测到 NVIDIA GPU 或 pynvml 不可用，使用 GPU-Z 共享内存")
+        print("[INFO] 未检测到可用的 NVIDIA NVML 或 AMD ADLX，使用 GPU-Z 共享内存")
 
-    if vendor == "nvidia":
-        print("[INFO] NVIDIA 模式: 跳过 GPU-Z 启动")
+    if vendor in ("nvidia", "adlx"):
+        print("[INFO] 原生 GPU 数据源模式: 跳过 GPU-Z 启动")
     else:
         gpuz_ready = start_gpuz()
         if gpuz_ready:

@@ -1,7 +1,7 @@
 """
 GPU 数据采集模块
 
-负责检测 GPU 厂商并通过 NVML (NVIDIA) 或 GPU-Z 共享内存读取 GPU 硬件信息。
+负责检测 GPU 厂商并通过 NVML (NVIDIA)、ADLX (AMD) 或 GPU-Z 共享内存读取 GPU 硬件信息。
 """
 
 import ctypes
@@ -10,6 +10,7 @@ import mmap
 from utils.gpuz_structures import GPUZ_SH_MEM
 from utils.logger import debug_log
 import utils.config as _cfg
+from utils.adlx_reader import ADLXGPUReader
 
 try:
     from pynvml import (
@@ -23,6 +24,7 @@ except ImportError:
     NVML_AVAILABLE = False
 
 _gpu_vendor = "unknown"
+_adlx_reader = None
 
 
 def set_gpu_vendor(vendor):
@@ -34,21 +36,46 @@ def get_gpu_vendor():
     return _gpu_vendor
 
 
+def _get_adlx_reader():
+    global _adlx_reader
+    if _adlx_reader is None:
+        _adlx_reader = ADLXGPUReader()
+    return _adlx_reader
+
+
+def _detect_adlx():
+    reader = _get_adlx_reader()
+    if reader.initialize():
+        debug_log(f"检测到 AMD GPU (ADLX): {reader.gpu_name or 'AMD GPU'}", "INFO")
+        return True
+    return False
+
+
 def detect_gpu_vendor():
-    source = _cfg._config.get("gpu_source", "auto") if _cfg._config else "auto"
+    source = (
+        _cfg._config.get("gpu_source", "auto").strip().lower()
+        if _cfg._config
+        else "auto"
+    )
     if source == "nvidia":
         if not NVML_AVAILABLE:
             debug_log("gpu_source=nvidia 但 pynvml 未安装，回退到自动检测", "WARN")
         else:
             debug_log("gpu_source=nvidia，强制使用 pynvml", "INFO")
             return "nvidia"
+    elif source == "adlx":
+        debug_log("gpu_source=adlx，强制使用 AMD ADLX", "INFO")
+        if _detect_adlx():
+            return "adlx"
+        debug_log("ADLX 不可用，回退到 GPU-Z 共享内存", "WARN")
+        return "unknown"
     elif source == "gpuz":
         debug_log("gpu_source=gpuz，强制使用 GPU-Z 共享内存", "INFO")
         return "unknown"
 
     if not NVML_AVAILABLE:
-        debug_log("pynvml 未安装，使用 GPU-Z 共享内存", "INFO")
-        return "unknown"
+        debug_log("pynvml 未安装，尝试 AMD ADLX", "INFO")
+        return "adlx" if _detect_adlx() else "unknown"
 
     try:
         nvmlInit()
@@ -56,7 +83,7 @@ def detect_gpu_vendor():
         if device_count == 0:
             debug_log("未检测到 NVIDIA GPU (pynvml)", "INFO")
             nvmlShutdown()
-            return "unknown"
+            return "adlx" if _detect_adlx() else "unknown"
         try:
             handle = nvmlDeviceGetHandleByIndex(0)
             brand = nvmlDeviceGetBrand(handle)
@@ -71,11 +98,11 @@ def detect_gpu_vendor():
         nvmlShutdown()
         return "nvidia"
     except NVMLError as e:
-        debug_log(f"pynvml 初始化失败 ({e})，使用 GPU-Z", "WARN")
-        return "unknown"
+        debug_log(f"pynvml 初始化失败 ({e})，尝试 AMD ADLX", "WARN")
+        return "adlx" if _detect_adlx() else "unknown"
     except Exception as e:
-        debug_log(f"GPU 检测异常 ({e})，使用 GPU-Z", "ERROR")
-        return "unknown"
+        debug_log(f"GPU 检测异常 ({e})，尝试 AMD ADLX", "ERROR")
+        return "adlx" if _detect_adlx() else "unknown"
 
 
 _nvml_handle = None
@@ -133,6 +160,8 @@ def get_GPU_info_nvidia():
 def get_GPU_info():
     if _gpu_vendor == "nvidia":
         return get_GPU_info_nvidia()
+    if _gpu_vendor == "adlx":
+        return _get_adlx_reader().read()
 
     info = {"GPU Load": 0.0, "Memory Used (Dedicated)": None, "MemSize": None, "CardName": "GPU"}
     shm_size = ctypes.sizeof(GPUZ_SH_MEM)
