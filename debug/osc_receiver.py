@@ -1,7 +1,7 @@
 """
 轻量级 OSC 接收端，用于调试 VRChat 或其他 OSC 发送端。
 
-默认监听 VRChat 的 OSC 输出端口 9001：
+默认监听 VRChat 的 OSC 输入端口 9000：
     python osc_receiver.py
 
 按 Ctrl+C 停止。
@@ -19,12 +19,12 @@ from pythonosc import dispatcher, osc_server
 
 
 DEFAULT_HOST = "0.0.0.0"
-DEFAULT_PORT = 9001
+DEFAULT_PORT = 9000
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="接收并打印 OSC UDP 消息（默认监听 VRChat 的输出端口 9001）。",
+        description="接收并打印 OSC UDP 消息（默认监听 VRChat 的输入端口 9000）。",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(

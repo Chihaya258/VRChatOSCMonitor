@@ -1,6 +1,7 @@
 @echo off
 setlocal
-set "VENV_DIR=%~dp0.venv"
+set "PROJECT_DIR=%~dp0.."
+set "VENV_DIR=%PROJECT_DIR%\.venv"
 
 if not exist "%VENV_DIR%\Scripts\python.exe" (
     echo ================================================
@@ -15,7 +16,7 @@ if not exist "%VENV_DIR%\Scripts\python.exe" (
         exit /b 1
     )
     echo [2/2] Installing dependencies...
-    call "%VENV_DIR%\Scripts\python.exe" -m pip install -r "%~dp0requirements.txt"
+    call "%VENV_DIR%\Scripts\python.exe" -m pip install -r "%PROJECT_DIR%\requirements.txt"
     if %errorlevel% neq 0 (
         echo [ERROR] Failed to install dependencies.
         pause
@@ -23,7 +24,7 @@ if not exist "%VENV_DIR%\Scripts\python.exe" (
     )
 )
 
-echo Starting OSC Debug Receiver on UDP port 9001...
+echo Starting OSC Debug Receiver on UDP port 9000...
 call "%VENV_DIR%\Scripts\python.exe" "%~dp0osc_receiver.py" %*
 if %errorlevel% neq 0 (
     echo [ERROR] Program exited with code: %errorlevel%

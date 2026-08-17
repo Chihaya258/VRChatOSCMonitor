@@ -1,5 +1,6 @@
 @echo off
 setlocal
+set "PROJECT_DIR=%~dp0.."
 echo ============================================
 echo   OSC Debug Receiver Build Script
 echo ============================================
@@ -22,18 +23,25 @@ if %ERRORLEVEL% neq 0 (
 )
 
 echo [INFO] Installing project dependencies...
-pip install -r requirements.txt
+pip install -r "%PROJECT_DIR%\requirements.txt"
 if %ERRORLEVEL% neq 0 (
     echo [ERROR] Dependency installation failed.
     exit /b 1
 )
 
 echo [INFO] Building executable...
-pyinstaller --onefile --clean --name osc_receiver osc_receiver.py
+pyinstaller ^
+    --onefile ^
+    --clean ^
+    --name osc_receiver ^
+    --distpath "%~dp0dist" ^
+    --workpath "%~dp0build" ^
+    --specpath "%~dp0" ^
+    "%~dp0osc_receiver.py"
 if %ERRORLEVEL% neq 0 (
     echo [ERROR] Build failed.
     exit /b 1
 )
 
 echo.
-echo Build successful! Output: dist\osc_receiver.exe
+echo Build successful! Output: debug\dist\osc_receiver.exe
