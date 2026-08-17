@@ -9,6 +9,7 @@
     RAM   — 内存使用行
     GPU   — 显卡负载行
     VRAM  — 显存使用行
+    FPS — SteamVR 中 VR 应用的实际 FPS
     TEXT  — 控制台自定义文本
     WINDOW — 当前活动窗口标题
 """
@@ -22,6 +23,7 @@ DEFAULT_DISPLAY_CONFIG = {
     "RAM": "ON",
     "GPU": "ON",
     "VRAM": "ON",
+    "FPS": "ON",
     "TEXT": "ON",
     "WINDOW": "OFF",
 }
@@ -41,7 +43,11 @@ def load_display_config():
     """
     config = dict(DEFAULT_DISPLAY_CONFIG)
 
-    if os.path.exists(DISPLAY_CONFIG_FILE):
+    file_exists = os.path.exists(DISPLAY_CONFIG_FILE)
+    configured_keys = set()
+    legacy_key_migrated = False
+
+    if file_exists:
         try:
             with open(DISPLAY_CONFIG_FILE, "r", encoding="utf-8") as f:
                 for line in f:
@@ -50,13 +56,17 @@ def load_display_config():
                         key, val = line.split("=", 1)
                         key = key.strip().upper()
                         val = val.strip().upper()
+                        if key == "VRFPS":
+                            key = "FPS"
+                            legacy_key_migrated = True
                         if key in config:
+                            configured_keys.add(key)
                             config[key] = val if val in ("ON", "OFF") else "ON"
         except Exception as e:
             print(f"[WARN] 读取 display.conf 失败: {e}")
 
     # 文件不存在 → 创建默认配置
-    if not os.path.exists(DISPLAY_CONFIG_FILE):
+    if not file_exists:
         try:
             with open(DISPLAY_CONFIG_FILE, "w", encoding="utf-8") as f:
                 for k, v in DEFAULT_DISPLAY_CONFIG.items():
@@ -64,5 +74,33 @@ def load_display_config():
             print(f"[INFO] 已创建默认配置文件: {DISPLAY_CONFIG_FILE}")
         except IOError as e:
             print(f"[WARN] 无法创建 {DISPLAY_CONFIG_FILE}: {e}")
+    else:
+        if legacy_key_migrated:
+            try:
+                with open(DISPLAY_CONFIG_FILE, "r", encoding="utf-8") as f:
+                    migrated_lines = []
+                    for raw_line in f:
+                        if "=" in raw_line and not raw_line.lstrip().startswith("#"):
+                            raw_key, raw_value = raw_line.split("=", 1)
+                            if raw_key.strip().upper() == "VRFPS":
+                                raw_line = f"FPS={raw_value.strip()}\n"
+                        migrated_lines.append(raw_line)
+                with open(DISPLAY_CONFIG_FILE, "w", encoding="utf-8", newline="") as f:
+                    f.writelines(migrated_lines)
+                print("[INFO] 已将旧配置项 VRFPS 迁移为 FPS")
+            except IOError as e:
+                print(f"[WARN] 无法迁移旧 FPS 配置项: {e}")
+
+        missing_keys = [key for key in DEFAULT_DISPLAY_CONFIG if key not in configured_keys]
+        if missing_keys:
+            try:
+                with open(DISPLAY_CONFIG_FILE, "a", encoding="utf-8") as f:
+                    if os.path.getsize(DISPLAY_CONFIG_FILE) > 0:
+                        f.write("\n")
+                    for key in missing_keys:
+                        f.write(f"{key}={config[key]}\n")
+                print(f"[INFO] 已补充 display.conf 显示项: {', '.join(missing_keys)}")
+            except IOError as e:
+                print(f"[WARN] 无法更新 {DISPLAY_CONFIG_FILE}: {e}")
 
     return config

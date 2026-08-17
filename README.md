@@ -1,7 +1,8 @@
 # VRChatOSCMonitor
 
 
-实时采集 CPU、GPU、内存等硬件信息，通过 OSC 协议发送至 VRChat 聊天框显示。
+实时采集 CPU、GPU、内存及 SteamVR 帧率等信息，通过 OSC 协议发送至 VRChat 聊天框显示。
+SteamVR 尚未提供可用帧时序时，OSC 仍会显示 `FPS` 状态行，不会静默消失。
 
 ## GPU 数据源
 
@@ -59,6 +60,7 @@ CPU[i7-13700K]: 35.2%
 内存: 12.5GB/32GB
 显卡[RTX 4090]: 82.1%
 显存: 18.2GB/24GB
+FPS: 89.7
 当前窗口：Chrome
 ```
 
@@ -146,6 +148,7 @@ CPU=ON
 RAM=ON
 GPU=ON
 VRAM=ON
+FPS=ON
 TEXT=ON
 WINDOW=OFF
 ```
@@ -156,6 +159,7 @@ WINDOW=OFF
 | `RAM` | 内存使用 | ON |
 | `GPU` | 显卡负载 | ON |
 | `VRAM` | 显存使用 | ON |
+| `FPS` | SteamVR 中 VR 应用的实际 FPS（SteamVR 运行时显示） | ON |
 | `TEXT` | 控制台自定义文本 | ON |
 | `WINDOW` | 当前活动窗口标题 | OFF |
 
@@ -184,6 +188,12 @@ WINDOW=OFF
 2. 确认 OSC 端口与 `config.json` 中 `osc_port` 一致（默认 9000）
 3. Intel 用户确认 GPU-Z 已启动；AMD 用户若日志显示 ADLX 不可用，也请确认 GPU-Z 已启动
 
+### SteamVR FPS 未显示
+
+1. 确认 SteamVR 已启动，并且已有 VR 应用在运行
+2. 确认 `display.conf` 中的 `FPS=ON`
+3. 此项读取 SteamVR 的帧时序；暂时没有可用数据时会显示状态（例如 `FPS: SteamVR 无应用帧数据`）
+
 ---
 
 ## 系统要求
@@ -193,6 +203,7 @@ WINDOW=OFF
 - NVIDIA 显卡：安装显卡驱动即可（无需 GPU-Z）
 - AMD 显卡：安装支持 ADLX 的 AMD 显卡驱动即可；ADLX 不可用时需安装 GPU-Z
 - Intel 显卡：需安装 GPU-Z
+- SteamVR 帧率（可选）：安装并运行 SteamVR；无需额外 Python 依赖
 
 ## 已知问题
 
@@ -201,6 +212,11 @@ WINDOW=OFF
 ---
 
 ## 更新日志
+
+### v2.3 (2026-08)
+
+- **SteamVR 实际 FPS**：新增通过 OpenVR 帧时序读取 VR 应用实际 FPS，并在 SteamVR 未运行时自动隐藏
+- **显示项开关**：`display.conf` 新增 `FPS=ON/OFF`，可单独控制 FPS 行
 
 ### v2.2 (2026-08)
 

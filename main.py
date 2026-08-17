@@ -23,6 +23,7 @@ from utils.gpuz_search import start_gpuz
 from utils.gpu_reader import detect_gpu_vendor, get_GPU_info, set_gpu_vendor
 from utils.logger import debug_log
 from utils.osc_sender import format_osc_message
+from utils.steamvr_reader import SteamVRFPSReader
 
 
 status_data = {
@@ -31,8 +32,11 @@ status_data = {
     "vram_used": "N/A", "vram_total": "N/A",
     "gpu_name": "GPU", "text": "",
     "window_title": "",
+    "vr_fps": None,
+    "vr_fps_status": "等待 SteamVR 帧数据",
 }
 data_lock = threading.Lock()
+steamvr_reader = SteamVRFPSReader()
 
 
 def _get_cpu_name():
@@ -79,6 +83,11 @@ def hardware_monitor():
         ram_total = custom_ram if custom_ram > 0 else round(mem.total / (1024 ** 3), 2)
 
         gpu = get_GPU_info()
+        vr_timing = None
+        vr_fps_status = "FPS 已关闭"
+        if _disp_cfg._display_config.get("FPS", "ON") == "ON":
+            vr_timing = steamvr_reader.read()
+            vr_fps_status = steamvr_reader.status
 
         # ── 应用 GPU 名称 / 显存自定义覆盖 ──
         if gpu is not None:
@@ -93,6 +102,12 @@ def hardware_monitor():
                 f"GPU: {gpu['CardName']} | "
                 f"负载 {gpu['GPU Load']:.1f}% | "
                 f"显存 {gpu['Memory Used (Dedicated)']}GB/{gpu['MemSize']}GB",
+                "DEBUG",
+            )
+        if vr_timing is not None:
+            debug_log(
+                f"FPS: {vr_timing['FPS']:.1f} | "
+                f"帧时间 {vr_timing['Frame Time (ms)']}ms",
                 "DEBUG",
             )
 
@@ -138,6 +153,10 @@ def hardware_monitor():
                 status_data["vram_used"] = f"{gpu['Memory Used (Dedicated)']}GB" if gpu["Memory Used (Dedicated)"] is not None else "N/A"
                 status_data["vram_total"] = f"{gpu['MemSize']}GB" if gpu["MemSize"] is not None else "N/A"
                 status_data["gpu_name"] = gpu["CardName"] or "GPU"
+            status_data["vr_fps"] = vr_timing["FPS"] if vr_timing is not None else None
+            status_data["vr_fps_status"] = (
+                "" if vr_timing is not None else vr_fps_status
+            )
             status_data["window_title"] = window_title
         time.sleep(interval)
 

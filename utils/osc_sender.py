@@ -5,6 +5,7 @@ OSC 消息格式化模块
 提供设备名称精简功能，去除冗长的厂商前缀和冗余信息。
 """
 
+import math
 import re
 
 
@@ -73,7 +74,8 @@ def format_osc_message(data, sys_cpu, display_config=None):
     根据 display_config 控制每行是否显示，设为 OFF 的行不包含在消息中。
 
     Args:
-        data: dict (cpu, ram_used, ram_total, gpu_name, gpu, vram_used, vram_total, text, window_title)
+        data: dict (cpu, ram_used, ram_total, gpu_name, gpu, vram_used,
+            vram_total, vr_fps, text, window_title)
         sys_cpu: CPU 名称字符串
         display_config: dict 或 None，display.conf 配置项，为 None 时全部显示
 
@@ -93,6 +95,22 @@ def format_osc_message(data, sys_cpu, display_config=None):
 
     if not display_config or display_config.get("VRAM", "ON") == "ON":
         parts.append(f"显存: {data['vram_used']}/{data['vram_total']}")
+
+    # Keep this row visible even while SteamVR has not supplied a timing
+    # sample yet.  Previously the ``None`` check removed the whole row, which
+    # made it look as if the feature had not been added at all.
+    if not display_config or display_config.get("FPS", "ON") == "ON":
+        vr_fps = data.get("vr_fps")
+        try:
+            vr_fps = float(vr_fps)
+        except (TypeError, ValueError):
+            vr_fps = None
+
+        if vr_fps is not None and math.isfinite(vr_fps):
+            parts.append(f"FPS: {vr_fps:.1f}")
+        else:
+            status = data.get("vr_fps_status") or "等待 SteamVR 帧数据"
+            parts.append(f"FPS: {status}")
 
     if data.get("text") and (not display_config or display_config.get("TEXT", "ON") == "ON"):
         parts.append(f'"{data["text"].strip()}"')
