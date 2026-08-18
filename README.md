@@ -1,8 +1,8 @@
 # VRChatOSCMonitor
 
 
-实时采集 CPU、GPU、内存及 SteamVR 帧率等信息，通过 OSC 协议发送至 VRChat 聊天框显示。
-SteamVR 尚未提供可用帧时序时，OSC 仍会显示 `FPS` 状态行，不会静默消失。
+实时采集 CPU、GPU、内存及 VRChat FPS 等信息，通过 OSC 协议发送至 VRChat 聊天框显示。
+FPS 通过 Windows 自带的 ETW 图形呈现事件计算，无需 SteamVR、厂商 SDK 或第三方监控软件。
 
 ## GPU 数据源
 
@@ -159,7 +159,7 @@ WINDOW=OFF
 | `RAM` | 内存使用 | ON |
 | `GPU` | 显卡负载 | ON |
 | `VRAM` | 显存使用 | ON |
-| `FPS` | SteamVR 中 VR 应用的实际 FPS（SteamVR 运行时显示） | ON |
+| `FPS` | VRChat 的图形 Present FPS（Windows ETW） | ON |
 | `TEXT` | 控制台自定义文本 | ON |
 | `WINDOW` | 当前活动窗口标题 | OFF |
 
@@ -188,11 +188,11 @@ WINDOW=OFF
 2. 确认 OSC 端口与 `config.json` 中 `osc_port` 一致（默认 9000）
 3. Intel 用户确认 GPU-Z 已启动；AMD 用户若日志显示 ADLX 不可用，也请确认 GPU-Z 已启动
 
-### SteamVR FPS 未显示
+### VRChat FPS 未显示
 
-1. 确认 SteamVR 已启动，并且已有 VR 应用在运行
-2. 确认 `display.conf` 中的 `FPS=ON`
-3. 此项读取 SteamVR 的帧时序；暂时没有可用数据时会显示状态（例如 `FPS: SteamVR 无应用帧数据`）
+1. 确认 VRChat 已启动，并且 `display.conf` 中的 `FPS=ON`
+2. FPS 读取 Windows 图形 Present 事件；VRChat 启动或切换世界后需等待数秒收集帧样本
+3. 如果显示 `ETW 权限不足，请以管理员身份运行`，请以管理员身份运行，或将当前用户加入 Windows 的 `Performance Log Users` 组
 
 ---
 
@@ -203,7 +203,7 @@ WINDOW=OFF
 - NVIDIA 显卡：安装显卡驱动即可（无需 GPU-Z）
 - AMD 显卡：安装支持 ADLX 的 AMD 显卡驱动即可；ADLX 不可用时需安装 GPU-Z
 - Intel 显卡：需安装 GPU-Z
-- SteamVR 帧率（可选）：安装并运行 SteamVR；无需额外 Python 依赖
+- FPS：Windows 10 / 11 自带 ETW；无需安装 SteamVR、厂商 SDK 或第三方 FPS 监控软件
 
 ## 已知问题
 
@@ -215,7 +215,7 @@ WINDOW=OFF
 
 ### v2.3 (2026-08)
 
-- **SteamVR 实际 FPS**：新增通过 OpenVR 帧时序读取 VR 应用实际 FPS，并在 SteamVR 未运行时自动隐藏
+- **Windows ETW FPS**：使用 Windows 图形 Present 事件计算 VRChat FPS；不再依赖 SteamVR / OpenVR
 - **显示项开关**：`display.conf` 新增 `FPS=ON/OFF`，可单独控制 FPS 行
 
 ### v2.2 (2026-08)

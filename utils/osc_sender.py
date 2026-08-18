@@ -96,9 +96,8 @@ def format_osc_message(data, sys_cpu, display_config=None):
     if not display_config or display_config.get("VRAM", "ON") == "ON":
         parts.append(f"显存: {data['vram_used']}/{data['vram_total']}")
 
-    # Keep this row visible even while SteamVR has not supplied a timing
-    # sample yet.  Previously the ``None`` check removed the whole row, which
-    # made it look as if the feature had not been added at all.
+    # Keep this row visible while the built-in Windows ETW monitor is still
+    # waiting for VRChat frame samples.
     if not display_config or display_config.get("FPS", "ON") == "ON":
         vr_fps = data.get("vr_fps")
         try:
@@ -109,7 +108,7 @@ def format_osc_message(data, sys_cpu, display_config=None):
         if vr_fps is not None and math.isfinite(vr_fps):
             parts.append(f"FPS: {vr_fps:.1f}")
         else:
-            status = data.get("vr_fps_status") or "等待 SteamVR 帧数据"
+            status = data.get("vr_fps_status") or "等待 VRChat 帧数据"
             parts.append(f"FPS: {status}")
 
     if data.get("text") and (not display_config or display_config.get("TEXT", "ON") == "ON"):

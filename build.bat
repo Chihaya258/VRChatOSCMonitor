@@ -44,7 +44,7 @@ pyinstaller ^
     --hidden-import utils.gpuz_structures ^
     --hidden-import utils.gpuz_search ^
     --hidden-import utils.adlx_reader ^
-    --hidden-import utils.steamvr_reader ^
+    --hidden-import utils.etw_fps_reader ^
     --hidden-import utils.gpu_reader ^
     --hidden-import utils.osc_sender ^
     main.py

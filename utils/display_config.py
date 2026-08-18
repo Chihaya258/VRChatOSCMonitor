@@ -9,7 +9,7 @@
     RAM   — 内存使用行
     GPU   — 显卡负载行
     VRAM  — 显存使用行
-    FPS — SteamVR 中 VR 应用的实际 FPS
+    FPS — Windows ETW 计算的 VRChat 图形 Present FPS
     TEXT  — 控制台自定义文本
     WINDOW — 当前活动窗口标题
 """

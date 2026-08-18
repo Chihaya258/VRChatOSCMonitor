@@ -23,7 +23,7 @@ from utils.gpuz_search import start_gpuz
 from utils.gpu_reader import detect_gpu_vendor, get_GPU_info, set_gpu_vendor
 from utils.logger import debug_log
 from utils.osc_sender import format_osc_message
-from utils.steamvr_reader import SteamVRFPSReader
+from utils.etw_fps_reader import VRChatFPSReader
 
 
 status_data = {
@@ -33,10 +33,10 @@ status_data = {
     "gpu_name": "GPU", "text": "",
     "window_title": "",
     "vr_fps": None,
-    "vr_fps_status": "等待 SteamVR 帧数据",
+    "vr_fps_status": "等待 VRChat 帧数据",
 }
 data_lock = threading.Lock()
-steamvr_reader = SteamVRFPSReader()
+fps_reader = VRChatFPSReader()
 
 
 def _get_cpu_name():
@@ -86,8 +86,8 @@ def hardware_monitor():
         vr_timing = None
         vr_fps_status = "FPS 已关闭"
         if _disp_cfg._display_config.get("FPS", "ON") == "ON":
-            vr_timing = steamvr_reader.read()
-            vr_fps_status = steamvr_reader.status
+            vr_timing = fps_reader.read()
+            vr_fps_status = fps_reader.status
 
         # ── 应用 GPU 名称 / 显存自定义覆盖 ──
         if gpu is not None:

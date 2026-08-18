@@ -7,7 +7,7 @@ utils - HardwareMonitor-VRChatOSC 工具模块
   - gpuz_structures:  GPU-Z 共享内存结构体
   - gpuz_search:      GPU-Z 搜索与进程管理
   - adlx_reader:      AMD ADLX 数据读取
-  - steamvr_reader:   SteamVR 帧率读取
+  - etw_fps_reader:   Windows ETW VRChat 帧率读取
   - gpu_reader:       GPU 数据采集
   - osc_sender:       OSC 消息格式化
 """
